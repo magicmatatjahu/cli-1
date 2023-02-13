@@ -18,6 +18,7 @@ export default class New extends Command {
     example: Flags.string({ char: 'e', description: 'name of the example to use' }),
     studio: Flags.boolean({ char: 's', description: 'open in Studio' }),
     port: Flags.integer({ char: 'p', description: 'port in which to start Studio' }),
+    'remote-address': Flags.string({ char: 'r', description: 'remote address on which the Studio is hosted' }),
     'no-tty': Flags.boolean({ description: 'do not use an interactive terminal' }),
   };
 
@@ -38,7 +39,10 @@ export default class New extends Command {
 
     if (flags.studio) {
       if (isTTY) {
-        startStudio(fileName, flags.port || DEFAULT_PORT);
+        startStudio({
+          filePath: fileName,
+          port: flags.port,
+        });
       } else {
         this.warn('Warning: --studio flag was passed but the terminal is not interactive. Ignoring...');
       }
@@ -110,7 +114,12 @@ export default class New extends Command {
     selectedTemplate = selectedTemplate || DEFAULT_ASYNCAPI_TEMPLATE;
 
     await this.createAsyncapiFile(fileName, selectedTemplate);
-    if (openStudio) { startStudio(fileName, flags.port || DEFAULT_PORT);}
+    if (openStudio) { 
+      startStudio({
+        filePath: fileName,
+        port: flags.port,
+      });
+    }
   }
 
   async createAsyncapiFile(fileName:string, selectedTemplate:string) {
